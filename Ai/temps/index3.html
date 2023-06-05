@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GROW - Vehicle Tracking System</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .header {
+                background-color: #79b57d;
+                padding: 20px;
+                text-align: center;
+            }
+            .container {
+                display: flex;
+            }
+            .video-stream-container {
+                width: 70%;
+            }
+            .captured-images-container {
+                width: 30%;
+                height: 500px;
+                overflow-y: scroll;
+            }
+            .captured-images {
+                list-style-type: none;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .captured-images li {
+                padding: 5px;
+                border-bottom: 1px solid #ccc;
+                text-align: center;
+                width: 50%;
+                box-sizing: border-box;
+            }
+            .captured-images img {
+                width: 100%;
+            }
+        </style>
+        <script>
+            let videoStream;
+
+            function openCamera() {
+                const video = document.querySelector('.video-stream');
+
+                // Check if the camera stream is already open
+                if (!videoStream) {
+                    // Check if the browser supports accessing the camera
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        navigator.mediaDevices.getUserMedia({ video: true })
+                            .then(function (stream) {
+                                video.srcObject = stream;
+                                videoStream = stream;
+                                video.play();
+                                startCapture();
+                            })
+                            .catch(function (error) {
+                                console.log('Error accessing the camera: ', error);
+                            });
+                    } else {
+                        console.log('Camera access not supported by the browser.');
+                    }
+                }
+            }
+
+            function captureImage() {
+                const video = document.querySelector('.video-stream');
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                // Set the canvas dimensions to match the video stream
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Draw the current frame from the video stream onto the canvas
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Get the image data from the canvas
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                // Perform any desired action with the captured image data
+                // For example, you can send it to the server for processing
+
+                // Display the captured image on the page
+                const capturedImagesList = document.getElementById('captured-images');
+                const li = document.createElement('li');
+                const img = document.createElement('img');
+                img.src = imageData;
+                li.appendChild(img);
+                capturedImagesList.prepend(li);
+            }
+
+            function startCapture() {
+                setInterval(captureImage, 2000); // Capture image every 2 seconds
+            }
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <h1>GROW - Vehicle Tracking System</h1>
+        </div>
+        <div class="container">
+            <div class="video-stream-container">
+                <h2>Detection Live Stream</h2>
+                <video class="video-stream" autoplay playsinline></video>
+            </div>
+            <div class="captured-images-container">
+                <h2>Captured Vehicle Images</h2>
+                <ul id="captured-images" class="captured-images"></ul>
+            </div>
+        </div>
+        <button onclick="openCamera()">Open AI</button>
+    </body>
+</html>
